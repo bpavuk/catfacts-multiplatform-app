@@ -1,38 +1,53 @@
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.bpavuk.catfacts.CatFacts
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalResourceApi::class)
+val sdk = CatFacts()
+
 @Composable
 fun App() {
+    val coroutineScope = rememberCoroutineScope()
     MaterialTheme {
-        var greetingText by remember { mutableStateOf("Hello, World!") }
-        var showImage by remember { mutableStateOf(false) }
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = {
-                greetingText = "Hello, ${getPlatformName()}"
-                showImage = !showImage
-            }) {
-                Text(greetingText)
-            }
-            AnimatedVisibility(showImage) {
-                Image(
-                    painterResource("compose-multiplatform.xml"),
-                    null
+        var catFact by remember { mutableStateOf("") }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            AnimatedContent(
+                catFact,
+                transitionSpec = {
+                    slideInVertically() +
+                            fadeIn(tween()) togetherWith ExitTransition.None
+                }
+            ) { fact ->
+                Text(
+                    fact,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    textAlign = TextAlign.Center
                 )
+            }
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        catFact = sdk.getCatFact().fact
+                    }
+                },
+                modifier = Modifier.padding(bottom = 80.dp)
+            ) {
+                Text("Get Cat Fact")
             }
         }
     }
