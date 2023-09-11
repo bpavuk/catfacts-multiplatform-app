@@ -2,10 +2,16 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,8 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.bpavuk.catfacts.CatFacts
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 
 val sdk = CatFacts()
@@ -76,42 +80,50 @@ fun App() {
     }
 }
 
-class NoRippleInteractionSource : MutableInteractionSource {
+private object NoRippleTheme : RippleTheme {
+    @Composable
+    override fun defaultColor() = Color.Unspecified
 
-    override val interactions: Flow<Interaction> = emptyFlow()
-
-    override suspend fun emit(interaction: Interaction) {}
-
-    override fun tryEmit(interaction: Interaction) = true
+    @Composable
+    override fun rippleAlpha(): RippleAlpha = RippleAlpha(0.0f,0.0f,0.0f,0.0f)
 }
 
 @Composable
 fun MetroButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    interactionSource: MutableInteractionSource = NoRippleInteractionSource(),
+    interactionSource: MutableInteractionSource = MutableInteractionSource(),
     content: @Composable (RowScope.() -> Unit)
 ) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .padding(bottom = 80.dp)
-            .border(
-                width = 4.dp,
-                color = Color.White
-            )
-            .then(modifier),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = Color.Transparent,
-            contentColor = Color.White
-        ),
-        elevation = ButtonDefaults.elevation(
-            defaultElevation = 0.dp,
-            pressedElevation = 0.dp
-        ),
-        interactionSource = interactionSource
-    ) {
-        content()
+    val rememberedInteractionSource = remember { interactionSource }
+    val isPressed by rememberedInteractionSource.collectIsPressedAsState()
+    CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier
+                .padding(bottom = 80.dp)
+                .border(
+                    width = 4.dp,
+                    color = Color.White
+                )
+                .animateContentSize(tween())
+                .padding(if (isPressed) 0.dp else 2.dp)
+                .then(modifier),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color.Transparent,
+                contentColor = Color.White
+            ),
+            elevation = ButtonDefaults.elevation(
+                defaultElevation = 0.dp,
+                pressedElevation = 0.dp,
+                disabledElevation = 0.dp,
+                hoveredElevation = 0.dp,
+                focusedElevation = 0.dp
+            ),
+            interactionSource = rememberedInteractionSource,
+        ) {
+            content()
+        }
     }
 }
 
