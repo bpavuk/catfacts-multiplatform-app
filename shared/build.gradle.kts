@@ -29,9 +29,11 @@ kotlin {
                 implementation(compose.material)
                 implementation("com.bpavuk:catfacts-sdk:1.5.4")
                 api(libs.moko.resources)
+                api(libs.moko.resourcesCompose)
             }
         }
         val androidMain by getting {
+            dependsOn(commonMain)
             dependencies {
                 api("androidx.activity:activity-compose:1.7.2")
                 api("androidx.appcompat:appcompat:1.6.1")

@@ -10,6 +10,7 @@ kotlin {
     jvm()
     sourceSets {
         val jvmMain by getting  {
+            dependsOn(commonMain.get())
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(project(":shared"))
