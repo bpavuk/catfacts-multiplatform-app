@@ -10,6 +10,8 @@ kotlin {
 
     jvm("desktop")
 
+    ios()
+
 //    listOf(
 //        iosX64(),
 //        iosArm64(),
@@ -54,6 +56,9 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.common)
             }
+        }
+        val iosMain by getting {
+            dependsOn(commonMain)
         }
     }
 }

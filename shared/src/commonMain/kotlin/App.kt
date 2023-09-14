@@ -17,12 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.bpavuk.catfacts.CatFacts
+import com.icerockdev.app.MR
+import dev.icerock.moko.resources.compose.painterResource
 import kotlinx.coroutines.launch
 
 val sdk = CatFacts()
@@ -33,7 +34,7 @@ fun App() {
     MaterialTheme {
         Box {
             Image(
-                painter = getCatImage(),
+                painter = painterResource(MR.images.background_cat),
                 contentDescription = null,
                 modifier = Modifier
                     .blur(32.dp),
@@ -129,5 +130,3 @@ fun MetroButton(
 
 expect fun getPlatformName(): String
 
-@Composable
-expect fun getCatImage(): Painter
